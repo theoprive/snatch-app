@@ -16,6 +16,7 @@ import {
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { getCampusFromEmail } from '../../data/campusList';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,34 +45,20 @@ export default function AccessScreen({ navigation }: any) {
   }, []);
 
   const handleNext = () => {
-        const trimmedEmail = email.trim().toLowerCase();
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!trimmedEmail) return;
 
-        // Si aucun email
-        if (trimmedEmail === '') {
-            return;
-        }
+    const campusName = getCampusFromEmail(trimmedEmail) ?? undefined;
 
-        // Liste des domaines autorisés
-        const allowedDomains = ['etu.u-bordeaux.fr', 'kedgebs.com'];
-        const domain = trimmedEmail.split('@')[1];
+    if (campusName) {
+        console.log('✅ Email vérifié :', trimmedEmail, '-> Campus :', campusName);
+        navigation.navigate('VerificationScreen', { email: trimmedEmail, campus: campusName });
+    } else {
+        console.log('❌ Email non reconnu :', trimmedEmail);
+        navigation.navigate('OupsScreen');
+    }
+  };
 
-        if (!domain) {
-            return;
-        }
-
-        // Vérifie si le domaine correspond à un partenaire
-        const isAllowed = allowedDomains.some((d) => domain.endsWith(d));
-
-        if (isAllowed) {
-            console.log('✅ Email vérifié :', trimmedEmail);
-            // Redirige vers l'écran de vérification (code à 4 chiffres)
-            navigation.navigate('VerificationScreen', { email: trimmedEmail });
-        } else {
-            console.log('❌ Email non reconnu :', trimmedEmail);
-            // Redirige vers la page "Oups"
-            navigation.navigate('OupsScreen');
-        }
-    };
 
 
   const handleScroll = (event: any) => {

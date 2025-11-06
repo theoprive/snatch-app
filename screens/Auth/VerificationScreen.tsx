@@ -14,6 +14,9 @@ import {
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
 import BackArrow from '../../assets/icons/BackArrowIcon';
+import { signInWithEmail } from '../../services/auth';
+import { User, mockUsers } from '../../data/mockDatabase';
+import { getCampusFromEmail } from '../../data/campusList';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,17 +47,37 @@ export default function VerificationScreen({ route, navigation }: any) {
     };
   }, []);
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (code === '2408') {
+        // créer / récupérer l'utilisateur
+        let { user, message } = await signInWithEmail(route.params.email);
+        console.log(message);
+        if (!user) {
+            user = {
+                id: `u_${Date.now()}`, // simple id unique pour mock
+                email: route.params.email,
+                campus: getCampusFromEmail(route.params.email) ?? undefined,
+                hasProfile: false,
+                adminClub: undefined,
+                coAdminClubs: [],
+                memberClubs: [],
+            };
+
+            // ici tu peux l'ajouter à ta mockDB
+            mockUsers.push(user); 
+        }
+        
+
+        // naviguer vers les onglets
         navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }], // Navigue vers les onglets
+            index: 0,
+            routes: [{ name: 'WelcomeScreen', params: { user } }],
         });
     } else {
         console.log('Code incorrect');
         // tu peux afficher un toast ou message d'erreur ici
     }
-  };
+    };
 
 
   const handleResend = () => {

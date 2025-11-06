@@ -5,4 +5,5 @@ export const Colors = {
   text: '#FFFFFF',              // Texte principal
   secondaryText: '#B3B3B3',    // Texte secondaire
   button : '#888',
+  disabledRed: '#772222',
 };

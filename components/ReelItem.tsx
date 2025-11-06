@@ -5,6 +5,8 @@ import ReelActions from './ReelActions';
 import TicketIcon from '../assets/icons/TicketIcon'; // ton icône ticket
 import { BlurView } from 'expo-blur';
 import { Colors } from '../theme/colors';
+import { useNavigation } from '@react-navigation/native';
+
 
 
 interface ReelItemProps {
@@ -12,19 +14,23 @@ interface ReelItemProps {
   itemWidth: number;
   itemHeight: number;
   isGridView: boolean;
+  user: any;
+  navigation: any;
 }
 
 const { width } = Dimensions.get('window');
 const LABEL_WIDTH = 368;
 const LABEL_HEIGHT = 100;
 
-export default function ReelItem({ source, itemWidth, itemHeight, isGridView }: ReelItemProps) {
-  const player = useVideoPlayer(source, player => {
+
+export default function ReelItem({ source, itemWidth, itemHeight, isGridView, user, navigation }: ReelItemProps) {
+  const player = useVideoPlayer(source.videoUri, player => {
     player.loop = true;
     player.play();
   });
 
   const [isFollowing, setIsFollowing] = useState(false);
+  
 
   return (
     <View style={[styles.container, { width: itemWidth, height: itemHeight }]}>
@@ -46,6 +52,8 @@ export default function ReelItem({ source, itemWidth, itemHeight, isGridView }: 
             longitude={2.2945}
             latitude={48.8584}
             label={'Night Party'}
+            user={user}
+            navigation={navigation}
           />
           {/* Créateur */}
             <View style={styles.creatorContainer}>
@@ -79,20 +87,26 @@ export default function ReelItem({ source, itemWidth, itemHeight, isGridView }: 
 
 
           {/* Event label */}
-          <BlurView intensity={60} tint="light" style={[styles.eventLabel, { width: itemWidth - 32 }]}>
-            <Image
-              source={require('../assets/images/eventPoster.png')} // remplacer par ton poster
-              style={styles.poster}
-              resizeMode="cover"
-            />
-            <View style={styles.infoContainer}>
-              <Text style={styles.title} numberOfLines={1}>Nom de l'événement</Text>
-              <Text style={styles.dateTime}>Ven 8 Nov • 20:00</Text>
-            </View>
-            <View style={styles.ticketContainer}>
-              <TicketIcon width={40} height={40} />
-            </View>
-          </BlurView>
+          <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => navigation.navigate('SnatchDetail' as never, { id: source.id } as never)}
+            >
+            <BlurView intensity={60} tint="light" style={[styles.eventLabel, { width: itemWidth - 32 }]}>
+                <Image
+                source={require('../assets/images/eventPoster.png')}
+                style={styles.poster}
+                resizeMode="cover"
+                />
+                <View style={styles.infoContainer}>
+                <Text style={styles.title} numberOfLines={1}>{source.title}</Text>
+                <Text style={styles.dateTime}>Ven 8 Nov • 20:00</Text>
+                </View>
+                <View style={styles.ticketContainer}>
+                <TicketIcon width={40} height={40} />
+                </View>
+            </BlurView>
+          </TouchableOpacity>
+
         </>
       )}
     </View>

@@ -1,13 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Dimensions } from 'react-native';
 import { Colors } from '../../theme/colors';
 import FilterIcon from '../../assets/icons/FilterIcon';
 import GridIcon from '../../assets/icons/GridIcon';
 import ListIcon from '../../assets/icons/ListIcon';
 import ReelItem from '../../components/ReelItem';
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { getCurrentUser } from "../../services/auth";
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AppStackParamList } from '../../navigation/types';
+import { mockSnatchs } from '../../data/mockDatabase'; // <-- tes Snatchs
 
 
+type FeedScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, 'MainTabs'>;
 
+interface Props {
+  navigation: FeedScreenNavigationProp;
+}
+
+
+//type Props = NativeStackScreenProps<RootStackParamList, "Feed">;
 
 const tabs = ['Pour Moi', 'Du Jour', 'Suivis', 'Flashback'];
 const GAP = 8; // espacement uniforme
@@ -22,28 +35,52 @@ const GRID_ITEM_HEIGHT = (GRID_ITEM_WIDTH * 16) / 9;
 
 
 // Placeholder data
-const monReel = require('../../assets/videos/laconfig_reel.mp4');
+/*const monReel = require('../../assets/videos/laconfig_reel.mp4');
 
-const placeholderReels = Array.from({ length: 10 }, (_, i) => `Reel ${i + 1}`);
+const placeholderReels = Array.from({ length: 10 }, (_, i) => `Reel ${i + 1}`);*/
+
+
 
 export default function FeedScreen() {
+  const navigation = useNavigation<FeedScreenNavigationProp>();
+  
   const [activeTab, setActiveTab] = useState('Pour Moi');
   const [isGridView, setIsGridView] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
+  useEffect(() => {
+    (async () => {
+        const cur = await getCurrentUser();
+        if (!cur) return;
+        setUser(cur);
+    })();
+    }, []);
+
+  // -------------------------
+  // VERIFICATION DU PROFIL
+  // -------------------------
+  if (!user) {
+    return <Text style={{ color: '#fff', padding: 20 }}>Chargement...</Text>;
+  }
+
+
+  // -------------------------
+  // FEED NORMAL
+  // -------------------------
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER TABS */}
       <View style={styles.header}>
         {/* Grid toggle */}
         <TouchableOpacity
-            style={styles.grid}
-            onPress={() => setIsGridView(!isGridView)}
-            >
-            {isGridView ? (
-                <ListIcon width={22} height={22} color={Colors.text} />
-            ) : (
-                <GridIcon width={22} height={22} color={Colors.text} />
-            )}
+          style={styles.grid}
+          onPress={() => setIsGridView(!isGridView)}
+        >
+          {isGridView ? (
+            <ListIcon width={22} height={22} color={Colors.text} />
+          ) : (
+            <GridIcon width={22} height={22} color={Colors.text} />
+          )}
         </TouchableOpacity>
 
         {/* Center: Tabs */}
@@ -68,53 +105,57 @@ export default function FeedScreen() {
       {/* FEED */}
       {isGridView ? (
         <FlatList
-            key="grid"
-            data={[monReel]}
-            keyExtractor={(item, index) => index.toString()}
-            numColumns={2}
-            columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: GAP }}
-            renderItem={({ item, index }) => {
-                const isLeft = index % 2 === 0;
-                return (
-                    <View
-                    style={[
-                        styles.gridItem,
-                        {
-                        width: GRID_ITEM_WIDTH,
-                        marginLeft: isLeft ? GAP : GAP / 2,
-                        marginRight: isLeft ? GAP / 2 : GAP,
-                        marginBottom: GAP,
-                        },
-                    ]}
-                    >
-                    <ReelItem
-                        source={monReel}
-                        itemWidth={GRID_ITEM_WIDTH}
-                        itemHeight={GRID_ITEM_HEIGHT}
-                        isGridView={isGridView}
-                        />
-                    </View>
-                );
-            }}
-            />
-        ) : (
-        <FlatList
-            key="list"
-            data={[monReel]}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingBottom: 0 }}
-            renderItem={({ item }) => (
-                <View style={styles.listItem}>
+          key="grid"
+          data={mockSnatchs}
+          keyExtractor={(item, index) => item.id}
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: GAP }}
+          renderItem={({ item, index }) => {
+            const isLeft = index % 2 === 0;
+            return (
+              <View
+                style={[
+                  styles.gridItem,
+                  {
+                    width: GRID_ITEM_WIDTH,
+                    marginLeft: isLeft ? GAP : GAP / 2,
+                    marginRight: isLeft ? GAP / 2 : GAP,
+                    marginBottom: GAP,
+                  },
+                ]}
+              >
                 <ReelItem
-                    source={monReel}
-                    itemWidth={width}
-                    itemHeight={LIST_ITEM_HEIGHT}
-                    isGridView={isGridView}
+                  source={item}
+                  itemWidth={GRID_ITEM_WIDTH}
+                  itemHeight={GRID_ITEM_HEIGHT}
+                  isGridView={isGridView}
+                  user={user}
+                  navigation={navigation}
                 />
-                </View>
-            )}
+              </View>
+            );
+          }}
         />
-        )}
+      ) : (
+        <FlatList
+          key="list"
+          data={mockSnatchs}
+          keyExtractor={(item, index) => item.id}
+          contentContainerStyle={{ paddingBottom: 0 }}
+          renderItem={({ item }) => (
+            <View style={styles.listItem}>
+              <ReelItem
+                source={item}
+                itemWidth={width}
+                itemHeight={LIST_ITEM_HEIGHT}
+                isGridView={isGridView}
+                user={user}
+                navigation= {navigation}
+              />
+            </View>
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
