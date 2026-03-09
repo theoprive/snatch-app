@@ -16,7 +16,7 @@ Snatch aims to reverse that trend by making **offline experiences discoverable i
 The platform connects two types of users:
 
 • **Snatchers** – people discovering and joining experiences  
-• **Experience creators** – organizers sharing activities with their community
+• **Snatch Makers** – organizers sharing activities with their community
 
 The product is designed to make spontaneous participation easy and engaging.
 
