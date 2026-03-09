@@ -8,6 +8,7 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Colors } from './theme/colors';
 import { SnatchProvider } from './context/SnatchContext';
 import { UserProvider } from './context/UserContext'; // <-- nouvel import
+import { ClubProvider } from './context/ClubContext';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -28,11 +29,13 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
       <UserProvider> {/* ← nouvel provider */}
-        <SnatchProvider>
-          <BottomSheetModalProvider>
-            <AppNavigator />
-          </BottomSheetModalProvider>
-        </SnatchProvider>
+        <ClubProvider>
+          <SnatchProvider>
+            <BottomSheetModalProvider>
+              <AppNavigator />
+            </BottomSheetModalProvider>
+          </SnatchProvider>
+        </ClubProvider>
       </UserProvider>
     </GestureHandlerRootView>
   );

@@ -1,34 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Dimensions } from 'react-native';
 import { Colors } from '../../theme/colors';
 import FilterIcon from '../../assets/icons/FilterIcon';
 import GridIcon from '../../assets/icons/GridIcon';
 import ListIcon from '../../assets/icons/ListIcon';
 import ReelItem from '../../components/ReelItem';
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { getCurrentUser } from "../../services/auth";
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/types';
-import { mockSnatchs } from '../../data/mockDatabase'; // <-- tes Snatchs
 import { useSnatchs } from '../../context/SnatchContext';
+import { useUser } from '../../context/UserContext';
 
 
 type FeedScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, 'MainTabs'>;
 
-interface Props {
-  navigation: FeedScreenNavigationProp;
-}
-
-
-//type Props = NativeStackScreenProps<RootStackParamList, "Feed">;
-
 const tabs = ['Pour Moi', 'Du Jour', 'Suivis', 'Flashback'];
 const GAP = 8; // espacement uniforme
 const { width } = Dimensions.get('window');
-
-const LIST_ITEM_WIDTH = width - GAP * 2; // largeur pleine
-const LIST_ITEM_HEIGHT = (LIST_ITEM_WIDTH * 16) / 9;
 
 const GRID_ITEM_WIDTH = (width - GAP * 3) / 2; // 2 colonnes + 3 gaps
 const GRID_ITEM_HEIGHT = (GRID_ITEM_WIDTH * 16) / 9;
@@ -45,26 +33,17 @@ const placeholderReels = Array.from({ length: 10 }, (_, i) => `Reel ${i + 1}`);*
 export default function FeedScreen() {
   const navigation = useNavigation<FeedScreenNavigationProp>();
   const { snatchs } = useSnatchs();
+  const { currentUser } = useUser();
   
   const [activeTab, setActiveTab] = useState('Pour Moi');
   const [isGridView, setIsGridView] = useState(false);
-  const [user, setUser] = useState<any>(null);
 
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
-
-
-  useEffect(() => {
-    (async () => {
-        const cur = await getCurrentUser();
-        if (!cur) return;
-        setUser(cur);
-    })();
-    }, []);
 
   // -------------------------
   // VERIFICATION DU PROFIL
   // -------------------------
-  if (!user) {
+  if (!currentUser) {
     return <Text style={{ color: '#fff', padding: 20 }}>Chargement...</Text>;
   }
 
@@ -135,7 +114,7 @@ export default function FeedScreen() {
                   itemWidth={GRID_ITEM_WIDTH}
                   itemHeight={GRID_ITEM_HEIGHT}
                   isGridView={isGridView}
-                  user={user}
+                  user={currentUser}
                   navigation={navigation}
                   currentVideoId={currentVideoId}       
                   setCurrentVideoId={setCurrentVideoId} 
@@ -170,7 +149,7 @@ export default function FeedScreen() {
                 itemWidth={width}
                 itemHeight={Dimensions.get('window').height}
                 isGridView={isGridView}
-                user={user}
+                user={currentUser}
                 navigation={navigation}
                 currentVideoId={currentVideoId}       
                 setCurrentVideoId={setCurrentVideoId} 

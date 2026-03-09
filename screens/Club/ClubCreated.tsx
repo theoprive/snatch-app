@@ -10,15 +10,14 @@ import { Fonts } from '../../theme/fonts';
 import { ClubStackParamList, MainTabsParamList } from '../../navigation/types';
 
 type ClubNav = NativeStackNavigationProp<ClubStackParamList, 'ClubCreated'>;
-type MainTabsNav = BottomTabNavigationProp<MainTabsParamList>;
 
 export default function ClubCreated({ route }: any) {
   const navigation = useNavigation<ClubNav>();
   const { clubId, clubName } = route.params;
 
-  const goToSnatch = () => {
+const goToSnatch = () => {
   const parentNav = navigation.getParent<BottomTabNavigationProp<MainTabsParamList>>();
-  parentNav?.navigate('CreateSnatch'); // nom exact de la tab
+  parentNav?.navigate('Snatch');
 };
 
 

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/types';
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
@@ -22,11 +23,12 @@ import { Alert } from 'react-native';
 
 
 type Props = NativeStackScreenProps<AppStackParamList, 'ViewProfile'>;
+type NavigationProps = NativeStackNavigationProp<AppStackParamList>;
 
 
 export default function ViewProfile({ route }: Props) {
   const { currentUser } = useUser(); // <-- on récupère le currentUser
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProps>();
   const {
     userId,
     firstName,

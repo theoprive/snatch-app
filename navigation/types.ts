@@ -37,6 +37,14 @@ export type AppStackParamList = {
       name: string;
       role: 'Admin' | 'Co-admin';
       image: any;
+      description?: string;
+      address?: string;
+      followersCount?: number;
+      upcomingSnatchs?: any[];
+      admins?: any[];
+      flashbacks?: string[];
+      whatsapp?: string;
+      discord?: string;
     }[];
   };
 
@@ -61,9 +69,9 @@ export type AppStackParamList = {
 export type MainTabsParamList = {
   Feed: undefined;
   Explorer: undefined;
-  CreateSnatch: undefined;
+  Snatch: undefined;
   Chat: undefined;
-  Profile: undefined;
+  Profil: undefined;
 };
 
 // navigation/types.ts
@@ -88,4 +96,3 @@ export type ClubStackParamList = {
     clubId: string;
   };
 };
-

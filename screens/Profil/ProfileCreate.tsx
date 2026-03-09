@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   StyleSheet,
   TouchableOpacity,
   Image,
@@ -12,18 +11,18 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { getCurrentUser, updateCurrentUser } from "../../services/auth";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AppStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 import { Fonts } from "../../theme/fonts";
 import { Ionicons } from "@expo/vector-icons";
-import { getCampusFromEmail } from "../../data/campusList";
+import { useUser } from "../../context/UserContext";
 
 
 type PropsProfile = NativeStackScreenProps<AppStackParamList, "ProfileCreate">;
 
 export default function ProfileCreate({ navigation }: PropsProfile) {
+  const { currentUser, patchCurrentUser } = useUser();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -47,14 +46,11 @@ const isFormValid =
 
 
   useEffect(() => {
-    (async () => {
-      const cur = await getCurrentUser();
-      if (!cur) return;
-      setUserId(cur.id);
-      setUserEmail(cur.email);
-      if (cur.firstName) setFirstName(cur.firstName);
-    })();
-  }, []);
+    if (!currentUser) return;
+    setUserId(currentUser.id);
+    setUserEmail(currentUser.email);
+    if (currentUser.firstName) setFirstName(currentUser.firstName);
+  }, [currentUser]);
 
 
   const pickImage = async () => {
@@ -86,7 +82,7 @@ const isFormValid =
     }
   }
 
-    await updateCurrentUser({
+    await patchCurrentUser({
         firstName,
         lastName,
         username,
@@ -291,4 +287,3 @@ const styles = StyleSheet.create({
   saveButton: { width: "100%", height: 56, borderRadius: 8, justifyContent: "center", alignItems: "center" },
   saveButtonText: { color: Colors.text, fontFamily: Fonts.Regular, fontSize: 16 },
 });
-

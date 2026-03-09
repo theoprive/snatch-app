@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -8,47 +8,38 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import { User, Snatch } from '../../data/mockDatabase';
 import SnatchCard from '../../components/SnatchCard';
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/types';
 import { useNavigation } from '@react-navigation/native';
-import { getCurrentUser } from '../../services/auth';
 import { universities } from '../../data/campusList';
 import { useSnatchs } from '../../context/SnatchContext';
+import { useUser } from '../../context/UserContext';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 129;
 const CARD_HEIGHT = 272;
 
 export default function ExploreScreen() {
-  const [user, setUser] = useState<User | null>(null);
+  const { currentUser } = useUser();
   const { snatchs } = useSnatchs();
 
   // Navigation vers le Stack parent
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList, 'MainTabs'>>();
 
-  useEffect(() => {
-    (async () => {
-      const cur = await getCurrentUser();
-      if (!cur) return;
-      setUser(cur);
-    })();
-  }, []);
-
-  const campusData = user
-    ? universities.find(u => user.email.toLowerCase().endsWith(u.domain.toLowerCase()))
+  const campusData = currentUser
+    ? universities.find(u => currentUser.email.toLowerCase().endsWith(u.domain.toLowerCase()))
     : null;
 
   const handleOpenSnatch = (id: string) => {
     navigation.navigate('SnatchDetail', { id });
   };
 
-  const mySnatchs = snatchs.filter(s => s.authorId === user?.id);
+  const mySnatchs = snatchs.filter(s => s.authorId === currentUser?.id);
   const otherSnatchs = snatchs
-    .filter(s => s.authorId !== user?.id)
+    .filter(s => s.authorId !== currentUser?.id)
     .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
   return (

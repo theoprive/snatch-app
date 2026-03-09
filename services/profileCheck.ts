@@ -1,11 +1,12 @@
-import { getCurrentUser } from './auth';
 import { NavigationProp } from '@react-navigation/native';
+import type { User } from '../data/mockDatabase';
 
 export async function ensureProfile(
+  currentUser: User | null,
   navigation: NavigationProp<any>,
   action?: () => void
 ) {
-  const user = await getCurrentUser();
+  const user = currentUser;
 
   if (!user) {
     console.log("Aucun utilisateur connecté — redirection vers ProfileCreate");

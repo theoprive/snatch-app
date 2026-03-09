@@ -17,11 +17,13 @@ import BackArrow from '../../assets/icons/BackArrowIcon';
 import { signInWithEmail } from '../../services/auth';
 import { User, mockUsers } from '../../data/mockDatabase';
 import { getCampusFromEmail } from '../../data/campusList';
+import { useUser } from '../../context/UserContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function VerificationScreen({ route, navigation }: any) {
   const { email } = route.params;
+  const { setAuthenticatedUser } = useUser();
   const [code, setCode] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(new Animated.Value(0));
 
@@ -66,9 +68,10 @@ export default function VerificationScreen({ route, navigation }: any) {
             // ici tu peux l'ajouter à ta mockDB
             mockUsers.push(user); 
         }
-        
+
 
         // naviguer vers les onglets
+        setAuthenticatedUser(user);
         navigation.reset({
             index: 0,
             routes: [{ name: 'WelcomeScreen', params: { user } }],

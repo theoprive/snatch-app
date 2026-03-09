@@ -7,6 +7,7 @@ import MapIcon from '../assets/icons/MapIcon';
 import OptionsIcon from '../assets/icons/OptionsIcon';
 import * as Linking from 'expo-linking';
 import { ensureProfile } from '../services/profileCheck';
+import { useUser } from '../context/UserContext';
 
 
 
@@ -25,6 +26,7 @@ interface ReelActionsProps {
 
 
 export default function ReelActions({ participants, bookmarks, shares, distance, latitude, longitude, label, user, navigation }: ReelActionsProps) {
+  const { currentUser } = useUser();
 
   const handleOpenMap = () => {
     const url = Platform.select({
@@ -38,17 +40,17 @@ export default function ReelActions({ participants, bookmarks, shares, distance,
   };
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(navigation, () => console.log('Voir participants'))}>
+      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(currentUser, navigation, () => console.log('Voir participants'))}>
         <ParticipantIcon width={32} height={32} />
         <Text style={styles.count}>{participants}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(navigation, () => console.log('Ajouter aux bookmarks'))}>
+      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(currentUser, navigation, () => console.log('Ajouter aux bookmarks'))}>
         <BookmarkIcon width={32} height={32} />
         <Text style={styles.count}>{bookmarks}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(navigation, () => console.log('Partager'))}>
+      <TouchableOpacity style={styles.button} onPress={() => ensureProfile(currentUser, navigation, () => console.log('Partager'))}>
         <ShareIcon width={32} height={32} />
         <Text style={styles.count}>{shares}</Text>
       </TouchableOpacity>

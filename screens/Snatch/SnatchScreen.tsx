@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BlurView } from 'expo-blur';
 
 import { AppStackParamList } from '../../navigation/types';
-import { getCurrentUser } from '../../services/auth';
 import { Colors } from '../../theme/colors';
-import { User, Snatch, mockSnatchs } from '../../data/mockDatabase';
+import { Snatch } from '../../data/mockDatabase';
 import CreateSnatchHeader from '../../components/CreateSnatch/Header';
 import ChoosePosterSnatch from '../../components/CreateSnatch/ChoosePoster';
 import CreateSnatchCTA from '../../components/CreateSnatch/CreateSnatchCTA';
@@ -19,13 +18,13 @@ import GallerySection from '../../components/CreateSnatch/GallerySection';
 import CategorySection from '../../components/CreateSnatch/CategorySection';
 import { Platform, StatusBar } from 'react-native';
 import { useSnatchs } from '../../context/SnatchContext';
+import { useUser } from '../../context/UserContext';
 
 
 
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const BANNER_HEIGHT = SCREEN_HEIGHT * 0.33; // 1/3
-const HEADER_HEIGHT = 70;
 const POSTER_OVERLAP = BANNER_HEIGHT * 0.45;
 const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight ?? 24;
 
@@ -35,8 +34,8 @@ type SnatchScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, '
 
 export default function SnatchScreen() {
   const navigation = useNavigation<SnatchScreenNavigationProp>();
-  const [userHasProfile, setUserHasProfile] = useState<boolean>(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useUser();
+  const userHasProfile = !!currentUser?.hasProfile;
   const [posterUri, setPosterUri] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState<string>(Colors.background);
   const [snatchName, setSnatchName] = useState<string>('');
@@ -44,20 +43,6 @@ export default function SnatchScreen() {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [address, setAddress] = useState<string>('');
   const { addSnatch } = useSnatchs();
-
-  useFocusEffect(
-    React.useCallback(() => {
-      let mounted = true;
-      (async () => {
-        const user = await getCurrentUser();
-        if (mounted) {
-          setUserHasProfile(!!user?.hasProfile);
-          setCurrentUser(user);
-        }
-      })();
-      return () => { mounted = false; };
-    }, [])
-  );
 
   useEffect(() => {
     if (!posterUri) {
