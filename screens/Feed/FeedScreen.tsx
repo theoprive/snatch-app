@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList, Dimensions } from 'react-native';
 import { Colors } from '../../theme/colors';
 import FilterIcon from '../../assets/icons/FilterIcon';
@@ -14,7 +14,7 @@ import { useUser } from '../../context/UserContext';
 
 type FeedScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, 'MainTabs'>;
 
-const tabs = ['Pour Moi', 'Du Jour', 'Suivis', 'Flashback'];
+const tabs = ['Next', 'Snatchback'] as const;
 const GAP = 8; // espacement uniforme
 const { width } = Dimensions.get('window');
 
@@ -35,10 +35,43 @@ export default function FeedScreen() {
   const { snatchs } = useSnatchs();
   const { currentUser } = useUser();
   
-  const [activeTab, setActiveTab] = useState('Pour Moi');
+  const [activeTab, setActiveTab] = useState<typeof tabs[number]>('Next');
   const [isGridView, setIsGridView] = useState(false);
 
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+
+  const now = Date.now();
+
+  const upcomingSnatchs = useMemo(
+    () =>
+      snatchs
+        .filter((snatch) => {
+          const eventEnd = new Date(snatch.endDate ?? snatch.startDate).getTime();
+          return !Number.isNaN(eventEnd) && eventEnd >= now;
+        })
+        .sort(
+          (a, b) =>
+            new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+        ),
+    [snatchs, now]
+  );
+
+  const pastSnatchs = useMemo(
+    () =>
+      snatchs
+        .filter((snatch) => {
+          const eventEnd = new Date(snatch.endDate ?? snatch.startDate).getTime();
+          return !Number.isNaN(eventEnd) && eventEnd < now;
+        })
+        .sort((a, b) => {
+          const aEnd = new Date(a.endDate ?? a.startDate).getTime();
+          const bEnd = new Date(b.endDate ?? b.startDate).getTime();
+          return bEnd - aEnd;
+        }),
+    [snatchs, now]
+  );
+
+  const displayedSnatchs = activeTab === 'Next' ? upcomingSnatchs : pastSnatchs;
 
   // -------------------------
   // VERIFICATION DU PROFIL
@@ -91,7 +124,7 @@ export default function FeedScreen() {
       {isGridView ? (
         <FlatList
           key="grid"
-          data={snatchs}
+          data={displayedSnatchs}
           keyExtractor={(item, index) => item.id}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: GAP }}
@@ -132,7 +165,7 @@ export default function FeedScreen() {
       ) : (
         <FlatList
           key="list"
-          data={snatchs}
+          data={displayedSnatchs}
           keyExtractor={(item) => item.id}
           pagingEnabled                     // scroll page par page
           decelerationRate="fast"
@@ -140,7 +173,7 @@ export default function FeedScreen() {
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={(ev) => {
             const index = Math.round(ev.nativeEvent.contentOffset.y / Dimensions.get('window').height);
-            setCurrentVideoId(snatchs[index]?.id);
+            setCurrentVideoId(displayedSnatchs[index]?.id);
           }}
           renderItem={({ item }) => (
             <View style={{ width, height: Dimensions.get('window').height }}>

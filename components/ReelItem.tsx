@@ -29,6 +29,7 @@ const LABEL_HEIGHT = 100;
 
 
 export default function ReelItem({ source, itemWidth, itemHeight, isGridView, user, navigation, isPlaying, onPress, currentVideoId, setCurrentVideoId, setIsGridView }: ReelItemProps) {
+  const hasVideo = !!source?.videoUri;
   const player = useVideoPlayer(source.videoUri, player => {
     player.loop = true;
   });
@@ -59,14 +60,22 @@ export default function ReelItem({ source, itemWidth, itemHeight, isGridView, us
     <View style={[styles.container, { width: itemWidth, height: itemHeight }]}>
 
       {/* Video */}
-      <VideoView
-        player={player}
-        style={{ width: '100%', height: '100%' }}
-        contentFit="cover"
-        allowsFullscreen={false}
-        nativeControls={false}
-        pointerEvents='none'
-      />
+      {hasVideo ? (
+        <VideoView
+          player={player}
+          style={{ width: '100%', height: '100%' }}
+          contentFit="cover"
+          allowsFullscreen={false}
+          nativeControls={false}
+          pointerEvents='none'
+        />
+      ) : (
+        <Image
+          source={source.image}
+          style={{ width: '100%', height: '100%' }}
+          resizeMode="cover"
+        />
+      )}
 
      
 
