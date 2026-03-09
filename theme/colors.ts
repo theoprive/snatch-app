@@ -1,3 +1,5 @@
+// theme/colors.ts
+
 export const Colors = {
   background: '#121212',       // Fond principal
   cardBackground: '#2A2A2A',   // Fond des champs / cartes

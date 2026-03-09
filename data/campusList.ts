@@ -15,11 +15,10 @@ export const universities: University[] = [
 /**
  * Fonction helper pour trouver le nom du campus depuis l'email
  */
-export function getCampusFromEmail(email: string): string | null {
-  const domain = email.split('@')[1]?.toLowerCase();
-  if (!domain) return null;
-
+export function getCampusFromEmail(email: string): string {
+  const domain = email.split('@')[1]?.toLowerCase() ?? '';
   const uni = universities.find(u => domain.endsWith(u.domain));
-  return uni ? uni.name : null;  // <- Si aucune correspondance, renvoie null
+  return uni ? uni.name : ''; // retourne une string vide si aucune correspondance
 }
+
 

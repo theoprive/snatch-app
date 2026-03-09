@@ -1,6 +1,13 @@
+// App.tsx (extrait avec ajout UserProvider)
+import React from 'react';
 import { useFonts, Lexend_400Regular, Lexend_500Medium, Lexend_700Bold } from '@expo-google-fonts/lexend';
 import AppNavigator from './navigation/AppNavigator';
-import { View, Text } from 'react-native';
+import { View, Text, StatusBar } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+import { Colors } from './theme/colors';
+import { SnatchProvider } from './context/SnatchContext';
+import { UserProvider } from './context/UserContext'; // <-- nouvel import
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -17,5 +24,16 @@ export default function App() {
     );
   }
 
-  return <AppNavigator />;
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
+      <UserProvider> {/* ← nouvel provider */}
+        <SnatchProvider>
+          <BottomSheetModalProvider>
+            <AppNavigator />
+          </BottomSheetModalProvider>
+        </SnatchProvider>
+      </UserProvider>
+    </GestureHandlerRootView>
+  );
 }

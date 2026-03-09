@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Dimensions, Image, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Dimensions, Image, Text, TouchableOpacity, Pressable } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import ReelActions from './ReelActions';
 import TicketIcon from '../assets/icons/TicketIcon'; // ton icône ticket
@@ -16,6 +16,11 @@ interface ReelItemProps {
   isGridView: boolean;
   user: any;
   navigation: any;
+  isPlaying?: boolean;
+  onPress?: () => void;
+  currentVideoId?: string | null;
+  setCurrentVideoId?: (id: string) => void;
+  setIsGridView?: (value: boolean) => void;
 }
 
 const { width } = Dimensions.get('window');
@@ -23,25 +28,51 @@ const LABEL_WIDTH = 368;
 const LABEL_HEIGHT = 100;
 
 
-export default function ReelItem({ source, itemWidth, itemHeight, isGridView, user, navigation }: ReelItemProps) {
+export default function ReelItem({ source, itemWidth, itemHeight, isGridView, user, navigation, isPlaying, onPress, currentVideoId, setCurrentVideoId, setIsGridView }: ReelItemProps) {
   const player = useVideoPlayer(source.videoUri, player => {
     player.loop = true;
-    player.play();
   });
 
+  
+
   const [isFollowing, setIsFollowing] = useState(false);
+  const [gridPlaying, setGridPlaying] = useState(false); // pour le mode grid
+  const [isLongPressing, setIsLongPressing] = useState(false);
+
+
+  useEffect(() => {
+    if (!isGridView) {         // mode list
+      if (player) {
+        if (isPlaying) player.play();
+        else player.pause();
+      }
+    } else {                   // mode grid
+      if (player) {
+        if (gridPlaying) player.play();
+        else player.pause();
+      }
+    }
+  }, [isPlaying, gridPlaying]);
   
 
   return (
     <View style={[styles.container, { width: itemWidth, height: itemHeight }]}>
+
+      {/* Video */}
       <VideoView
         player={player}
         style={{ width: '100%', height: '100%' }}
         contentFit="cover"
-        allowsFullscreen
+        allowsFullscreen={false}
+        nativeControls={false}
+        pointerEvents='none'
       />
 
-      {/* Actions uniquement si on est en mode liste */}
+     
+
+      {/* ===========================================================
+          ACTIONS — seulement en mode LIST
+        =========================================================== */}
       {!isGridView && (
         <>
           <ReelActions
@@ -55,62 +86,71 @@ export default function ReelItem({ source, itemWidth, itemHeight, isGridView, us
             user={user}
             navigation={navigation}
           />
+
           {/* Créateur */}
-            <View style={styles.creatorContainer}>
+          <View style={styles.creatorContainer}>
             <Image
-                source={require('../assets/images/laconfig.png')} // remplace par ton image
-                style={styles.creatorAvatar}
+              source={require('../assets/images/laconfig.png')}
+              style={styles.creatorAvatar}
             />
             <Text
-                style={[styles.creatorName, { maxWidth: width / 2 }]} // ← limite à la moitié de l’écran
-                numberOfLines={1}
-                >
-                @laconfig
+              style={[styles.creatorName, { maxWidth: width / 2 }]}
+              numberOfLines={1}
+            >
+              @laconfig
             </Text>
             <TouchableOpacity
-                style={[
+              style={[
                 styles.followButton,
                 isFollowing && styles.followingButton
-                ]}
-                onPress={() => setIsFollowing(!isFollowing)}
+              ]}
+              onPress={() => setIsFollowing(!isFollowing)}
             >
-                <Text
+              <Text
                 style={[
-                    styles.followText,
-                    isFollowing && styles.followingText
+                  styles.followText,
+                  isFollowing && styles.followingText
                 ]}
-                >
+              >
                 {isFollowing ? 'Suivi' : 'Suivre'}
-                </Text>
+              </Text>
             </TouchableOpacity>
-            </View>
-
+          </View>
 
           {/* Event label */}
           <TouchableOpacity
             activeOpacity={0.9}
-            onPress={() => navigation.navigate('SnatchDetail' as never, { id: source.id } as never)}
+            onPress={() =>
+              navigation.navigate('SnatchDetail' as never, { id: source.id } as never)
+            }
+          >
+            <BlurView
+              intensity={60}
+              tint="light"
+              style={[styles.eventLabel, { width: itemWidth - 32 }]}
             >
-            <BlurView intensity={60} tint="light" style={[styles.eventLabel, { width: itemWidth - 32 }]}>
-                <Image
-                source={require('../assets/images/eventPoster.png')}
+              <Image
+                source={source.image}
                 style={styles.poster}
                 resizeMode="cover"
-                />
-                <View style={styles.infoContainer}>
-                <Text style={styles.title} numberOfLines={1}>{source.title}</Text>
+              />
+              <View style={styles.infoContainer}>
+                <Text style={styles.title} numberOfLines={1}>
+                  {source.title}
+                </Text>
                 <Text style={styles.dateTime}>Ven 8 Nov • 20:00</Text>
-                </View>
-                <View style={styles.ticketContainer}>
+              </View>
+              <View style={styles.ticketContainer}>
                 <TicketIcon width={40} height={40} />
-                </View>
+              </View>
             </BlurView>
           </TouchableOpacity>
-
         </>
       )}
+
     </View>
   );
+
 }
 
 const styles = StyleSheet.create({

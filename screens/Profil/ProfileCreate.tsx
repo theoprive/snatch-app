@@ -18,6 +18,8 @@ import { AppStackParamList } from "../../navigation/types";
 import { Colors } from "../../theme/colors";
 import { Fonts } from "../../theme/fonts";
 import { Ionicons } from "@expo/vector-icons";
+import { getCampusFromEmail } from "../../data/campusList";
+
 
 type PropsProfile = NativeStackScreenProps<AppStackParamList, "ProfileCreate">;
 
@@ -27,7 +29,10 @@ export default function ProfileCreate({ navigation }: PropsProfile) {
   const [username, setUsername] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [photoUri, setPhotoUri] = useState<string | undefined>(undefined);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  
+
 
 // Computed pour savoir si le formulaire est valide
 const year = birthDate.split("/")[2];
@@ -46,6 +51,7 @@ const isFormValid =
       const cur = await getCurrentUser();
       if (!cur) return;
       setUserId(cur.id);
+      setUserEmail(cur.email);
       if (cur.firstName) setFirstName(cur.firstName);
     })();
   }, []);
@@ -88,9 +94,8 @@ const isFormValid =
         photoUri,
         hasProfile: true,
     });
-
-
-    navigation.replace("MainTabs");
+    console.log('💾 Profile saved, going back');
+    navigation.goBack();
   }
 
   const handleClose = () => navigation.goBack();
@@ -123,6 +128,7 @@ const isFormValid =
 
         {/* Contenu scrollable */}
         <ScrollView contentContainerStyle={styles.content}>
+            
             {/* Section 1 */}
             <View style={styles.section}>
             <TouchableOpacity style={styles.avatarWrapper} onPress={pickImage}>
@@ -137,11 +143,11 @@ const isFormValid =
                 <Ionicons name="add-circle" size={28} color={Colors.text} />
                 </View>
             </TouchableOpacity>
-
+            <Text style={styles.info}>{userEmail}</Text>
             <Text style={styles.subTitle}>Pour mes amis/clubs 🔒</Text>
             <TextInput style={[styles.input, {textAlign: 'left'}]} placeholder="Prénom" placeholderTextColor = {Colors.secondaryText} value={firstName} onChangeText={setFirstName} keyboardAppearance="dark"/>
             <TextInput style={styles.input} placeholder="Nom" placeholderTextColor = {Colors.secondaryText} value={lastName} onChangeText={setLastName} keyboardAppearance="dark"/>
-            <TextInput style={styles.input} placeholder="Date de naissance (jj/mm/aaaa)" value={birthDate} onChangeText={handleDateChange} keyboardType="numeric" maxLength={10} keyboardAppearance="dark" />
+            <TextInput style={styles.input} placeholder="Date de naissance (jj/mm/aaaa)" placeholderTextColor = {Colors.secondaryText} value={birthDate} onChangeText={handleDateChange} keyboardType="numeric" maxLength={10} keyboardAppearance="dark" />
             </View>
 
             {/* Ligne séparatrice */}
@@ -215,6 +221,14 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.Bold,
     alignSelf: "center",
     marginBottom: 12,
+  },
+
+  info: {
+    fontSize: 12,
+    color: Colors.secondaryText,
+    fontFamily: Fonts.Regular,
+    alignSelf: "center",
+    marginBottom: 16,
   },
 
   avatarWrapper: {

@@ -1,22 +1,22 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import SnatchLogoPart from '../../assets/logos/SnatchLogoSplit';
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
 
 const { width, height } = Dimensions.get('window');
 
 export default function OupsScreen({ navigation }: any) {
+
   return (
     <View style={styles.container}>
-      {/* Illustration */}
-      <Image
-        source={require('../../assets/logos/snatch_logo.png')} // 👉 Mets ton image ici
-        style={styles.image}
-        resizeMode="contain"
-      />
+      {/* Logo animé */}
+      <View style={{ marginBottom: 24 }}>
+        <SnatchLogoPart width={215} height={235}/>
+      </View>
 
       {/* Texte principal */}
-      <Text style={styles.title}>Oups 😕</Text>
+      <Text style={styles.title}>Oups... 😕</Text>
       <Text style={styles.subtitle}>
         Snatch n’est pas encore disponible sur ton campus.
       </Text>
@@ -39,11 +39,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
-  },
-  image: {
-    width: width * 0.6,
-    height: height * 0.25,
-    marginBottom: 24,
   },
   title: {
     color: '#FFFFFF',

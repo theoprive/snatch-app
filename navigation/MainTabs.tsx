@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import FeedScreen from '../screens/Feed/FeedScreen';
 import ExplorerScreen from '../screens/Explorer/ExplorerScreen';
 import SnatchScreen from '../screens/Snatch/SnatchScreen';
-import ChatScreen from '../screens/Chat/ChatScreen';
 import ProfilScreen from '../screens/Profil/ProfilScreen';
 
 import FeedIcon from '../assets/icons/navigations/FeedIcon';
@@ -12,9 +11,12 @@ import SnatchIcon from '../assets/icons/navigations/SnatchIcon';
 import ChatIcon from '../assets/icons/navigations/ChatIcon';
 import ProfilIcon from '../assets/icons/navigations/ProfilIcon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+
 
 
 import { Colors } from '../theme/colors';
+import ChatStack from './ChatStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,6 +45,7 @@ export default function MainTabs() {
             <FeedIcon width={32} height={32} fill={focused ? Colors.primary : '#888'} />
           ),
         }}
+        
       />
       <Tab.Screen
         name="Explorer"
@@ -52,6 +55,7 @@ export default function MainTabs() {
             <ExplorerIcon width={32} height={32} color={focused ? Colors.primary : Colors.button} />
           ),
         }}
+        
       />
       <Tab.Screen
         name="Snatch"
@@ -61,15 +65,21 @@ export default function MainTabs() {
             <SnatchIcon width={40} height={40} fill={focused ? Colors.primary : '#888'} />
           ),
         }}
+        listeners={{
+          tabPress: () => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          },
+        }}
       />
       <Tab.Screen
         name="Chat"
-        component={ChatScreen}
+        component={ChatStack}
         options={{
           tabBarIcon: ({ focused }) => (
             <ChatIcon width={36} height={36} fill={focused ? Colors.primary : '#888'} />
           ),
         }}
+        
       />
       <Tab.Screen
         name="Profil"
@@ -79,6 +89,7 @@ export default function MainTabs() {
             <ProfilIcon width={36} height={36} fill={focused ? Colors.primary : '#888'} />
           ),
         }}
+        
       />
     </Tab.Navigator>
   );

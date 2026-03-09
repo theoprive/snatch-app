@@ -11,12 +11,13 @@ import {
   Dimensions,
   Animated,
   Keyboard,
-  ScrollView,
 } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { Fonts } from '../../theme/fonts';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getCampusFromEmail } from '../../data/campusList';
+import { universities } from '../../data/campusList';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -26,6 +27,10 @@ export default function AccessScreen({ navigation }: any) {
   const [page, setPage] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const containsAt = email.includes('@');
+  const universityDomains = universities.map(u => u.domain);
+  const [inlineSuggestion, setInlineSuggestion] = useState('');
+
+
 
   const carouselData = [
     { text: 'Un multipass pour tous tes events', image: require('../../assets/images/multipass_qr.png'), },
@@ -101,17 +106,48 @@ export default function AccessScreen({ navigation }: any) {
 
       {/* Middle section - input + flèche + croix */}
         <View style={styles.inputWrapper}>
+        <View style={styles.ghostOverlay}>
+            <Text style={styles.ghostText}>{email}</Text>
+            {inlineSuggestion !== '' && (
+                <TouchableOpacity
+                onPress={() => {
+                    const [local, domain] = email.split('@');
+                    setEmail(`${local}@${domain}${inlineSuggestion}`);
+                    setInlineSuggestion('');
+                }}
+                >
+                <Text style={styles.suggestionGhost}>{inlineSuggestion}</Text>
+                </TouchableOpacity>
+            )}
+        </View>
+
         <TextInput
             style={styles.input}
             placeholder="Entre ton mail étudiant..."
             placeholderTextColor={Colors.secondaryText}
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(text) => {
+                const sanitized = text.replace(/\s/g, '');
+                setEmail(sanitized);
+
+                const parts = sanitized.split('@');
+                if (parts.length === 2) {
+                    const typedDomain = parts[1].toLowerCase();
+                    const match = universityDomains.find(domain =>
+                    domain.startsWith(typedDomain)
+                    );
+                    setInlineSuggestion(match ? match.slice(typedDomain.length) : '');
+                } else {
+                    setInlineSuggestion('');
+                }
+                }}
+
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="email-address"
             keyboardAppearance="dark"
         />
+
 
     {/* Croix pour effacer */}
         {email.length > 0 && (
@@ -308,4 +344,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     marginHorizontal: 4,
   },
+  suggestions: {
+    backgroundColor: Colors.secondaryText,
+    borderRadius: 8,
+    marginTop: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    },
+    suggestionText: {
+    color: '#fff',
+    fontSize: 16,
+    paddingVertical: 6,
+    },
+    ghostOverlay: {
+        position: 'absolute',
+        left: 16,
+        top: 0,
+        height: '100%',
+        flexDirection: 'row',
+        alignItems: 'center',
+        pointerEvents: 'box-none', // permet au champ de rester interactif
+        zIndex: 1,
+    },
+
+    ghostText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: Fonts.Regular,
+        opacity: 0.3,
+    },
+    suggestionGhost: {
+        fontFamily: Fonts.Regular,
+        color: '#FFFFFF',
+        opacity: 0.5,
+        paddingLeft: 2,
+        
+    },
+
+
+
 });

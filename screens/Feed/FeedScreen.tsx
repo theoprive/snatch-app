@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../navigation/types';
 import { mockSnatchs } from '../../data/mockDatabase'; // <-- tes Snatchs
+import { useSnatchs } from '../../context/SnatchContext';
 
 
 type FeedScreenNavigationProp = NativeStackNavigationProp<AppStackParamList, 'MainTabs'>;
@@ -43,10 +44,14 @@ const placeholderReels = Array.from({ length: 10 }, (_, i) => `Reel ${i + 1}`);*
 
 export default function FeedScreen() {
   const navigation = useNavigation<FeedScreenNavigationProp>();
+  const { snatchs } = useSnatchs();
   
   const [activeTab, setActiveTab] = useState('Pour Moi');
   const [isGridView, setIsGridView] = useState(false);
   const [user, setUser] = useState<any>(null);
+
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+
 
   useEffect(() => {
     (async () => {
@@ -63,6 +68,7 @@ export default function FeedScreen() {
     return <Text style={{ color: '#fff', padding: 20 }}>Chargement...</Text>;
   }
 
+  console.log('FeedScreen render, isGridView =', isGridView);
 
   // -------------------------
   // FEED NORMAL
@@ -106,7 +112,7 @@ export default function FeedScreen() {
       {isGridView ? (
         <FlatList
           key="grid"
-          data={mockSnatchs}
+          data={snatchs}
           keyExtractor={(item, index) => item.id}
           numColumns={2}
           columnWrapperStyle={{ justifyContent: 'space-between', marginBottom: GAP }}
@@ -131,7 +137,15 @@ export default function FeedScreen() {
                   isGridView={isGridView}
                   user={user}
                   navigation={navigation}
+                  currentVideoId={currentVideoId}       
+                  setCurrentVideoId={setCurrentVideoId} 
+                  onPress={() => {
+                    console.log('Switching to list', item.id);
+                    setCurrentVideoId(item.id);  // sélectionne la vidéo
+                    setIsGridView(false);        // passe en mode list
+                  }}
                 />
+
               </View>
             );
           }}
@@ -139,22 +153,37 @@ export default function FeedScreen() {
       ) : (
         <FlatList
           key="list"
-          data={mockSnatchs}
-          keyExtractor={(item, index) => item.id}
-          contentContainerStyle={{ paddingBottom: 0 }}
+          data={snatchs}
+          keyExtractor={(item) => item.id}
+          pagingEnabled                     // scroll page par page
+          decelerationRate="fast"
+          snapToInterval={Dimensions.get('window').height} // snap à la hauteur écran
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={(ev) => {
+            const index = Math.round(ev.nativeEvent.contentOffset.y / Dimensions.get('window').height);
+            setCurrentVideoId(snatchs[index]?.id);
+          }}
           renderItem={({ item }) => (
-            <View style={styles.listItem}>
+            <View style={{ width, height: Dimensions.get('window').height }}>
               <ReelItem
                 source={item}
                 itemWidth={width}
-                itemHeight={LIST_ITEM_HEIGHT}
+                itemHeight={Dimensions.get('window').height}
                 isGridView={isGridView}
                 user={user}
-                navigation= {navigation}
+                navigation={navigation}
+                currentVideoId={currentVideoId}       
+                setCurrentVideoId={setCurrentVideoId} 
+                onPress={() => {
+                  console.log('Switching to list', item.id);
+                  setCurrentVideoId(item.id);  // sélectionne la vidéo
+                  setIsGridView(false);        // passe en mode list
+                }}
               />
             </View>
           )}
         />
+
       )}
     </SafeAreaView>
   );

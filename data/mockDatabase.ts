@@ -2,13 +2,15 @@
 
 export type User = {
   id: string;
-  email: string;
+  email: string; // student mail
+  personalEmail?: string; // user/personal email to create a profile 
   firstName?: string;
   lastName?: string;
-  username?: string;
+  username?: string; // pseudo in public 
   birthYear?: number;
   campus?: string;
   photoUri?: string;
+  bio?: string;
   hasProfile: boolean;
   adminClub?: string;      // club dont il est admin principal
   coAdminClubs?: string[]; // clubs où il est co-admin
@@ -29,67 +31,81 @@ export type Snatch = {
   title: string;
   clubId?: string | null;
   authorId: string;
-  publishedAt: string;     // date de création
-  content?: string;        // description
+  publishedAt: string;
+  content?: string;        // description longue
   videoUri?: any;
   image?: any;             // poster / image principale
-  participants: string[];  // id des participants
-  startDate: string;       // date & heure de début ISO
-  endDate?: string;        // date & heure de fin ISO (optionnelle)
-  location?: string;       // lieu / nom du campus / adresse
+  participants: string[];
+  startDate: string;
+  endDate?: string;
+  location?: string;
+
+  // Nouveaux champs
+  visibility?: string;     // Mon campus / Public / Groupe
+  capacity?: string;       // Illimitée / nombre max
+  price?: string;          // Gratuit / montant
+  checkInEnabled?: boolean;
+  categoryIds?: string[];  // pour filtrer explore
+  gallery?: any[];         // images secondaires
 };
 
 
 // ---------- Users ----------
 export const mockUsers: User[] = [
-  {
-    id: "u_théo",
-    email: "theo@kedgebs.com",
-    firstName: "Théo",
-    campus: "Kedge Bordeaux",
-    hasProfile: true,
-    adminClub: "c_photo",
-    coAdminClubs: ["c_surf"],
-    memberClubs: [],
-    username: "theo_photo"
-  },
-  {
-    id: "u_louis",
-    email: "louis@kedgebs.com",
-    firstName: "Louis",
-    campus: "Kedge Bordeaux",
-    hasProfile: true,
-    coAdminClubs: ["c_photo"],
-    memberClubs: ["c_surf"],
-    username: "louis_surf"
-  },
-  {
-    id: "u_samy",
-    email: "samy@kedgebs.com",
-    firstName: "Samy",
-    hasProfile: true,
-    adminClub: "c_laconfig",
-    memberClubs: [],
-    username: "samy_admin"
-  },
-  {
-    id: "u_nouvel", // nouvel utilisateur
-    email: "n@kedgebs.com",
-    firstName: "Nouvel",
-    hasProfile: false, // profil pas encore créé
-    memberClubs: [],
-    username: "nouvel_user"
-  },
-  {
-    id: "u_ines",
-    email: "ines@kedgebs.com",
-    firstName: "Ines",
-    hasProfile: true,
-    adminClub: "c_surf",
-    memberClubs: [],
-    username: "ines_surf"
-  }
-];
+    {
+      id: "u_théo",
+      email: "theo@kedgebs.com",
+      firstName: "Théo",
+      campus: "Kedge Bordeaux",
+      hasProfile: true,
+      adminClub: "c_photo",
+      coAdminClubs: ["c_surf"],
+      memberClubs: [],
+      username: "theo_photo",
+      photoUri: 'https://randomuser.me/api/portraits/men/32.jpg'
+    },
+    {
+      id: "u_louis",
+      email: "louis@kedgebs.com",
+      firstName: "Louis",
+      campus: "Kedge Bordeaux",
+      hasProfile: true,
+      coAdminClubs: ["c_photo"],
+      memberClubs: ["c_surf"],
+      username: "louis_surf",
+      photoUri: 'https://randomuser.me/api/portraits/men/33.jpg'
+    },
+    {
+      id: "u_samy",
+      email: "samy@kedgebs.com",
+      firstName: "Samy",
+      hasProfile: true,
+      adminClub: "c_laconfig",
+      memberClubs: [],
+      username: "samy_admin",
+      photoUri: 'https://randomuser.me/api/portraits/men/34.jpg'
+    },
+    {
+      id: "u_nouvel",
+      email: "n@kedgebs.com",
+      firstName: "Nouvel",
+      hasProfile: false,
+      memberClubs: [],
+      username: "nouvel_user",
+      photoUri: 'https://randomuser.me/api/portraits/men/35.jpg'
+    },
+    {
+      id: "u_ines",
+      email: "ines@kedgebs.com",
+      firstName: "Ines",
+      hasProfile: true,
+      adminClub: "c_surf",
+      memberClubs: [],
+      username: "ines_surf",
+      photoUri: 'https://randomuser.me/api/portraits/women/32.jpg'
+    }
+  ];
+
 
 // ---------- Clubs ----------
 export const mockClubs: Club[] = [
@@ -126,7 +142,7 @@ export const mockSnatchs: Snatch[] = [
     clubId: "c_laconfig",
     authorId: "u_samy",
     publishedAt: new Date().toISOString(),
-    content: "Un premier Snatch pour tester la plateforme et rejoindre le club LaConfig.",
+    content: "Un premier Snatch pour tester la plateforme et rejoindre le club LaConfig. jiojfioewfio jewiof joiewj fiojwe iof jioewf jioewjfioewj fioewjfio jewiofjew fjwej fiowejif ewjfioewjfioewjiofjewio fjiew jfioewj iewj iowe jfiewjfioewjf",
     videoUri: require('../assets/videos/laconfig_reel.mp4'),
     image: require('../assets/images/eventPosterLarge.png'),
     participants: [], 
